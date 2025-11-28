@@ -21,6 +21,8 @@ public class Invoice : TenantEntity
     public decimal TaxAmount { get; private set; }
     
     public string? Currency { get; private set; } // "ARS", "USD"
+
+    public decimal ExchangeRate { get; private set; }
     public string? PaymentCurrency { get; private set; } // "ARS", "USD"
     
     // Fechas
