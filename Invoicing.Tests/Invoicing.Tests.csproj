@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Invoicing.Core\Invoicing.Core.csproj" />
     <ProjectReference Include="..\Invoicing.Api\Invoicing.Api.csproj" />
+    <ProjectReference Include="..\Invoicing.Domain\Invoicing.Domain.csproj" />
   </ItemGroup>
 
 </Project>

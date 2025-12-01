@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Invoicing.Core.Models;
+using Invoicing.Application.Models;
 
-namespace Invoicing.Core.Interfaces.Services;
+namespace Invoicing.Application.Interfaces.Services;
 
 public interface IClientService
 {

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Invoicing.Core.Interfaces.Repositories;
+namespace Invoicing.Application.Interfaces.Repositories;
 
 public interface IPointOfSaleRepository
 {

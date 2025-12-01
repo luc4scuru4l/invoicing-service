@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Invoicing.Core\Invoicing.Core.csproj" />
     <ProjectReference Include="..\Invoicing.Application\Invoicing.Application.csproj" />
+    <ProjectReference Include="..\Invoicing.Domain\Invoicing.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

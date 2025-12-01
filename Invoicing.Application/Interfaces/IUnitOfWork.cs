@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Invoicing.Core.Interfaces;
+namespace Invoicing.Application.Interfaces;
 
 public interface IUnitOfWork
 {

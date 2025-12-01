@@ -1,8 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Invoicing.Core.Entities;
+using Invoicing.Domain.Entities;
 
-namespace Invoicing.Core.Interfaces.Repositories;
+namespace Invoicing.Application.Interfaces.Repositories;
 
 public interface IInvoiceRepository
 {

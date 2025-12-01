@@ -1,7 +1,7 @@
 using System;
-using Invoicing.Core.Interfaces;
+using Invoicing.Domain.Interfaces;
 
-namespace Invoicing.Core.Entities.Base;
+namespace Invoicing.Domain.Entities.Base;
 
 public abstract class TenantEntity : ITenantEntity
 {

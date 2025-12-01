@@ -1,6 +1,6 @@
 using System;
 
-namespace Invoicing.Core.Interfaces;
+namespace Invoicing.Domain.Interfaces;
 
 public interface ITenantEntity
 {

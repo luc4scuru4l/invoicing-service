@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Invoicing.Core.Entities.Base;
+using Invoicing.Domain.Entities.Base;
 
-namespace Invoicing.Core.Entities;
+namespace Invoicing.Domain.Entities;
 
 public class Invoice : TenantEntity
 {

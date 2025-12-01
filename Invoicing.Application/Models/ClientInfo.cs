@@ -1,6 +1,6 @@
 using System;
 
-namespace Invoicing.Core.Models;
+namespace Invoicing.Application.Models;
 
 public class ClientInfo
 {
