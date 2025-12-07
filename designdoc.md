@@ -94,7 +94,9 @@ En lo que sigue, se hará hincapié en la autorización de facturas. En próxima
 - FailureReason (NVARCHAR(MAX))
 - UserId (UNIQUEIDENTIFIER, NOT NULL)
 - CreatedAtUtc (DATETIME2, NOT NULL, DEFAULT GETUTCDATE())
-- VoucherId (UNIQUEIDENTIFIER) -- Columna polimórfica
+- AuthorizedDocumentId (UNIQUEIDENTIFIER) -- Columna polimórfica
+- ArcaVoucherCode (INT, NOT NULL)
+- DocumentDescription (VARCHAR(50), NOT NULL)
 - TenantId (UNIQUEIDENTIFIER, NOT NULL)
 
 ### 4) Tabla Invoices
