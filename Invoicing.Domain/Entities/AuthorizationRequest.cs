@@ -5,7 +5,6 @@ namespace Invoicing.Domain.Entities;
 public class AuthorizationRequest : TenantEntity
 {
   public Guid IdempotencyKey { get; private set; }
-
   public string Status { get; private set; } // 'Pending', 'Success', 'Failed'
   public string RequestPayload { get; private set; } // JSON
   public string? FailureReason { get; private set; }
