@@ -83,7 +83,7 @@ En lo que sigue, se hará hincapié en la autorización de facturas. En próxima
 - PointOfSaleId (UNIQUEIDENTIFIER, PRIMARY KEY, FK a PointOfSales.Id)
 - ArcaVoucherCode (INT, PRIMARY KEY)
 - LastNumber (BIGINT, NOT NULL)
-- LastDueDate (DATETIMEOFFSET, NOT NULL)
+- LastIssueDate (DATETIMEOFFSET, NOT NULL)
 - TenantId (UNIQUEIDENTIFIER, NOT NULL)
 
 ### 3) Tabla AuthorizationRequest
