@@ -8,7 +8,7 @@ public class AuthorizationRequest : TenantEntity
 
   public string Status { get; private set; } // 'Pending', 'Success', 'Failed'
   public string RequestPayload { get; private set; } // JSON
-  public string? FailureReason { get; private set; } // Nullable
+  public string? FailureReason { get; private set; }
 
   // Auditoría del intento
   public Guid UserId { get; private set; }
@@ -19,7 +19,6 @@ public class AuthorizationRequest : TenantEntity
   public int ArcaVoucherCode { get; private set; }
   public string DocumentDescription { get; private set; } // "Factura A"
 
-  // Si tuvo éxito, guardamos el ID del documento generado
   public Guid? AuthorizedDocumentId { get; private set; }
 
   public AuthorizationRequest(
