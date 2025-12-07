@@ -1,0 +1,18 @@
+# Indica que este es el archivo raíz de configuración
+root = true
+
+# Aplicar a todos los archivos
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Reglas de Indentación Globales
+indent_style = space
+indent_size = 2
+
+# Reglas específicas para C#
+[*.cs]
+indent_style = space
+indent_size = 2

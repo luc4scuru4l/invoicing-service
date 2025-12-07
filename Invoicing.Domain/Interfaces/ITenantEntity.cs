@@ -4,5 +4,5 @@ namespace Invoicing.Domain.Interfaces;
 
 public interface ITenantEntity
 {
-    Guid TenantId { get; }
+  Guid TenantId { get; }
 }

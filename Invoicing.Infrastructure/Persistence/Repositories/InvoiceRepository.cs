@@ -6,16 +6,15 @@ namespace Invoicing.Infrastructure.Persistence.Repositories;
 
 public class InvoiceRepository : IInvoiceRepository
 {
-    private readonly InvoicingDbContext _context;
+  private readonly InvoicingDbContext _context;
 
-    public InvoiceRepository(InvoicingDbContext context)
-    {
-        _context = context;
-    }
+  public InvoiceRepository(InvoicingDbContext context)
+  {
+    _context = context;
+  }
 
-    public async Task AddAsync(Invoice invoice, CancellationToken cancellationToken = default)
-    {
-        // Solo agrega al ChangeTracker. No guarda todavía.
-        await _context.Invoices.AddAsync(invoice, cancellationToken);
-    }
+  public async Task AddAsync(Invoice invoice, CancellationToken cancellationToken = default)
+  {
+    await _context.Invoices.AddAsync(invoice, cancellationToken);
+  }
 }
