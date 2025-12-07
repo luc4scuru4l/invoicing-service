@@ -14,8 +14,9 @@ public class InvoicingDbContext : DbContext
     // Tus Tablas
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
-    // public DbSet<PointOfSale> PointOfSales { get; set; } // Agregala cuando tengas la entidad
-    // public DbSet<PointOfSaleCounter> PointOfSaleCounters { get; set; }
+    public DbSet<PointOfSaleCounter> PointOfSaleCounters { get; set; }
+    
+    //public DbSet<PointOfSale> PointOfSales { get; set; } // Agregala cuando tengas la entidad
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
