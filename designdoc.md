@@ -115,6 +115,7 @@ En lo que sigue, se hará hincapié en la autorización de facturas. En próxima
 - NetAmount (DECIMAL(18, 2), NOT NULL)
 - TaxAmount (DECIMAL(18, 2), NOT NULL)
 - Currency (CHAR(3), NOT NULL)
+- PaymentCurrency (CHAR(3), NOT NULL)
 - ExchangeRate (DECIMAL(18, 4), NOT NULL)
 - IssueDate (DATETIMEOFFSET, NOT NULL)
 - DueDate (DATETIMEOFFSET, NOT NULL)
