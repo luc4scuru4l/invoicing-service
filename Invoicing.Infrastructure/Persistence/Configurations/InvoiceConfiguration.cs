@@ -24,11 +24,14 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
     builder.Property(i => i.Currency)
         .HasMaxLength(3)
         .IsRequired();
+    builder.Property(i => i.PaymentCurrency)
+        .HasMaxLength(3)
+        .IsRequired();
 
     builder.HasMany(i => i.Items)
         .WithOne()
         .HasForeignKey(item => item.InvoiceId)
-        .OnDelete(DeleteBehavior.Cascade);
+        .OnDelete(DeleteBehavior.Restrict);
 
     builder.Metadata.FindNavigation(nameof(Invoice.Items))!
         .SetPropertyAccessMode(PropertyAccessMode.Field);
