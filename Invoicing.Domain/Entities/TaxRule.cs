@@ -9,5 +9,12 @@ public class TaxRule : TenantEntity
   public byte ClientTaxCategoryId { get; private set; }
   public Guid TaxId { get; private set; }
 
+  public TaxRule(Guid tenantId, byte productTaxCategoryId, byte clientTaxCategory, Guid taxId) : base(tenantId)
+  {
+    Id = Guid.NewGuid();
+    ProductTaxCategoryId = productTaxCategoryId;
+    ClientTaxCategoryId = clientTaxCategory;
+    TaxId = taxId;
+  }
   private TaxRule() { }
 }
