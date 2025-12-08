@@ -64,7 +64,8 @@ public class Invoice : TenantEntity
 
   public void AddItem(string description, decimal quantity, decimal unitPrice, decimal taxAmount, Guid productId)
   {
-    var item = new InvoiceItem(Id, TenantId, productId, description, quantity, unitPrice, taxAmount);
+    int nextNumber = _items.Count + 1;
+    var item = new InvoiceItem(Id, TenantId, nextNumber, productId, description, quantity, unitPrice, taxAmount);
     _items.Add(item);
     CalculateTotals();
   }
