@@ -6,14 +6,14 @@ namespace Invoicing.Infrastructure.Persistence.Configurations;
 
 public class PointOfSaleConfiguration : IEntityTypeConfiguration<PointOfSale>
 {
-    public void Configure(EntityTypeBuilder<PointOfSale> builder)
-    {
-        builder.ToTable("PointOfSales");
-        builder.HasKey(x => x.Id);
+  public void Configure(EntityTypeBuilder<PointOfSale> builder)
+  {
+    builder.ToTable("PointOfSales");
+    builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Name).HasMaxLength(100);
+    builder.Property(x => x.Name).HasMaxLength(100);
 
-        builder.HasIndex(x => new { x.TenantId, x.Number })
-               .IsUnique();
-    }
+    builder.HasIndex(x => new { x.TenantId, x.Number })
+           .IsUnique();
+  }
 }
