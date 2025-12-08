@@ -89,6 +89,7 @@ En lo que sigue, se hará hincapié en la autorización de facturas. En próxima
 ### 3) Tabla AuthorizationRequest
 #### Rol: Garantizar la idempotencia de una solicitud de autorización y llevar una bitácora de cada intento.
 - IdempotencyKey (UNIQUEIDENTIFIER, PRIMARY KEY)
+- PointOfSaleId (UNIQUEIDENTIFIER, NOT NULL, FK a PointOfSales.Id)
 - Status (VARCHAR(20), NOT NULL)
 - RequestPayload (NVARCHAR(MAX), NOT NULL)
 - FailureReason (NVARCHAR(MAX))
