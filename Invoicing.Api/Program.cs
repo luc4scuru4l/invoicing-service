@@ -1,7 +1,6 @@
 using Invoicing.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Invoicing.Infrastructure.Persistence.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +8,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// 2. INYECTAR EL DB CONTEXT
+builder.Services.AddDbContext<InvoicingDbContext>(options =>
+{
+  options.UseSqlServer(connectionString, sqlOptions =>
+  {
+    sqlOptions.MigrationsAssembly("Invoicing.Infrastructure");
+  });
+});
 
 var app = builder.Build();
 
