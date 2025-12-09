@@ -16,6 +16,14 @@ public class InvoiceItemTaxConfiguration : IEntityTypeConfiguration<InvoiceItemT
       .HasMaxLength(100)
       .IsRequired();
 
+    builder.Property(x => x.BaseAmount)
+      .HasColumnType("decimal(18,2)")
+      .IsRequired();
+    
+    builder.Property(x => x.AppliedAmount)
+      .HasColumnType("decimal(18,2)")
+      .IsRequired();
+
     builder.Property(x => x.TaxRate)
       .HasColumnType("decimal(18,6)")
       .IsRequired();
@@ -23,6 +31,11 @@ public class InvoiceItemTaxConfiguration : IEntityTypeConfiguration<InvoiceItemT
     builder.HasOne<InvoiceItem>()
       .WithMany()
       .HasForeignKey(x => x.InvoiceItemId)
+      .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasOne<Tax>()
+      .WithMany()
+      .HasForeignKey(x => x.TaxId)
       .OnDelete(DeleteBehavior.Restrict);
   }
 }
