@@ -11,7 +11,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// 2. INYECTAR EL DB CONTEXT
+if (string.IsNullOrEmpty(connectionString))
+{
+  throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no se encontró en appsettings.json");
+}
+
 builder.Services.AddDbContext<InvoicingDbContext>(options =>
 {
   options.UseSqlServer(connectionString, sqlOptions =>
