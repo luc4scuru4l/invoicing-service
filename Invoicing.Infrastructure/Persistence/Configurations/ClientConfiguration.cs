@@ -19,6 +19,11 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasMaxLength(200)
       .IsRequired();
 
+    builder.Property(x => x.Cuit)
+      .HasMaxLength(11)
+      .IsFixedLength()
+      .IsRequired();
+    
     // Categoría Fiscal (Resp Inscripto, Cons Final, etc)
     builder.Property(x => x.TaxCategoryId)
       .IsRequired();
