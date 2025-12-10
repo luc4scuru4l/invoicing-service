@@ -1,10 +1,11 @@
 using System.Reflection;
 using Invoicing.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Invoicing.Application.Common.Interfaces;
 
 namespace Invoicing.Infrastructure.Persistence.Contexts;
 
-public class InvoicingDbContext : DbContext
+public class InvoicingDbContext : DbContext, IInvoicingDbContext
 {
   public InvoicingDbContext(DbContextOptions<InvoicingDbContext> options) : base(options)
   {
