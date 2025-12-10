@@ -37,5 +37,10 @@ public class InvoiceItemTaxConfiguration : IEntityTypeConfiguration<InvoiceItemT
       .WithMany()
       .HasForeignKey(x => x.TaxId)
       .OnDelete(DeleteBehavior.Restrict);
+    
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

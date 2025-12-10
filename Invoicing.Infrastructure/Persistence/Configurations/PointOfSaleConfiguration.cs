@@ -13,6 +13,11 @@ public class PointOfSaleConfiguration : IEntityTypeConfiguration<PointOfSale>
 
     builder.Property(x => x.Name).HasMaxLength(100);
 
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
+
     builder.HasIndex(x => new { x.TenantId, x.Number })
            .IsUnique();
   }

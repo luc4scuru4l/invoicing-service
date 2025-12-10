@@ -23,6 +23,11 @@ public class AuthorizationRequestConfiguration : IEntityTypeConfiguration<Author
       .HasForeignKey(x => x.PointOfSaleId)
       .OnDelete(DeleteBehavior.Restrict);
 
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
+
     builder.HasIndex(x => new { x.TenantId, x.UserId, x.Status });
   }
 }

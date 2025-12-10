@@ -28,6 +28,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
     builder.Property(x => x.TenantId)
            .IsRequired();
+    
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
 
     builder.HasIndex(x => x.TenantId);
   }

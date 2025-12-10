@@ -14,6 +14,11 @@ public class PointOfSaleCounterConfiguration : IEntityTypeConfiguration<PointOfS
 
     builder.Property(x => x.LastNumber).IsConcurrencyToken();
 
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
+
     builder.HasOne<PointOfSale>()
            .WithMany()
            .HasForeignKey(x => x.PointOfSaleId)

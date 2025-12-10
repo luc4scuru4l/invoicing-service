@@ -19,5 +19,10 @@ public class TaxConfiguration : IEntityTypeConfiguration<Tax>
     builder.Property(x => x.Rate)
       .HasColumnType("decimal(18,6)")
       .IsRequired();
+    
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

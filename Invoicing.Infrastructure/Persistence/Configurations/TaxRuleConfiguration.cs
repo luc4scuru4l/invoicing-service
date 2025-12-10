@@ -20,6 +20,11 @@ public class TaxRuleConfiguration : IEntityTypeConfiguration<TaxRule>
       .HasForeignKey(x => x.TaxId)
       .OnDelete(DeleteBehavior.Restrict);
     
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
+
     builder.HasIndex(x => new { x.TenantId, x.ProductTaxCategoryId, x.ClientTaxCategoryId })
       .IsUnique();
   }

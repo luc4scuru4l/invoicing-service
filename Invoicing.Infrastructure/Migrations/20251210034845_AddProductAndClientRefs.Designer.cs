@@ -4,6 +4,7 @@ using Invoicing.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Invoicing.Infrastructure.Migrations
 {
     [DbContext(typeof(InvoicingDbContext))]
-    partial class InvoicingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251210034845_AddProductAndClientRefs")]
+    partial class AddProductAndClientRefs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,10 +168,6 @@ namespace Invoicing.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("TenantId");
-
                     b.ToTable("Invoices", (string)null);
                 });
 
@@ -208,10 +207,6 @@ namespace Invoicing.Infrastructure.Migrations
                         .HasColumnType("decimal(18,4)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("TenantId");
 
                     b.HasIndex("InvoiceId", "LineNumber")
                         .IsUnique();
@@ -253,8 +248,6 @@ namespace Invoicing.Infrastructure.Migrations
                     b.HasIndex("InvoiceItemId");
 
                     b.HasIndex("TaxId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("InvoiceItemTax", (string)null);
                 });
@@ -307,8 +300,6 @@ namespace Invoicing.Infrastructure.Migrations
 
                     b.HasKey("PointOfSaleId", "ArcaVoucherCode");
 
-                    b.HasIndex("TenantId");
-
                     b.ToTable("PointOfSaleCounters", (string)null);
                 });
 
@@ -356,8 +347,6 @@ namespace Invoicing.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Taxes", (string)null);
                 });
@@ -427,27 +416,6 @@ namespace Invoicing.Infrastructure.Migrations
                         .HasForeignKey("PointOfSaleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Invoicing.Domain.Entities.Invoice", b =>
-                {
-                    b.HasOne("Invoicing.Domain.Entities.Client", null)
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Invoicing.Domain.Entities.InvoiceItem", b =>
@@ -455,18 +423,6 @@ namespace Invoicing.Infrastructure.Migrations
                     b.HasOne("Invoicing.Domain.Entities.Invoice", null)
                         .WithMany("Items")
                         .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -484,21 +440,6 @@ namespace Invoicing.Infrastructure.Migrations
                         .HasForeignKey("TaxId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Invoicing.Domain.Entities.PointOfSale", b =>
-                {
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Invoicing.Domain.Entities.PointOfSaleCounter", b =>
@@ -508,30 +449,6 @@ namespace Invoicing.Infrastructure.Migrations
                         .HasForeignKey("PointOfSaleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Invoicing.Domain.Entities.Product", b =>
-                {
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Invoicing.Domain.Entities.Tax", b =>
-                {
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Invoicing.Domain.Entities.TaxRule", b =>
@@ -539,12 +456,6 @@ namespace Invoicing.Infrastructure.Migrations
                     b.HasOne("Invoicing.Domain.Entities.Tax", null)
                         .WithMany()
                         .HasForeignKey("TaxId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Invoicing.Domain.Entities.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
