@@ -1,7 +1,10 @@
 using Invoicing.Infrastructure;
 using Invoicing.Infrastructure.Persistence.Contexts;
 using Invoicing.Application.Common.Interfaces;
+using Invoicing.Application.UseCases.Invoices.Create;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +29,11 @@ builder.Services.AddDbContext<InvoicingDbContext>(options =>
 });
 
 builder.Services.AddScoped<IInvoicingDbContext>(provider => provider.GetRequiredService<InvoicingDbContext>());
+
+builder.Services.AddMediatR(cfg => 
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreateInvoiceCommand).Assembly);
+});
 
 var app = builder.Build();
 
