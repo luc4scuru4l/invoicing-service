@@ -1,5 +1,3 @@
-#DesignDoc
-
 ## Motivación:
 Endpoints de API que generen comprobantes de venta y los autoricen en el ente tributario de Argentina, ARCA en adelante. La prioridad es la simplicidad y garantizar la correcta numeración consecutiva, incluso bajo alta concurrencia o ante caídas de ARCA (Algo que lamentablemente es muy común). La idea es hacer un endpoint por tipo de comprobante. Además, se busca implementar una arquitectura multi-empresa.
 
@@ -19,31 +17,57 @@ Si es autorizado, ARCA le asigna un CAE (Código de Autorización Electrónico) 
 Si es rechazada, ARCA nos informa el motivo, pero no guarda el número **Z** como rechazado. Es decir, el próximo comprobante del tipo **X** y punto de venta **Y** a autorizar sí o sí debe ser **Z**.
 
 ## Dependencias del servicio:
-Este servicio tiene una dependencia de tiempo de ejecución (síncrona) con los siguientes servicios para la recolección de datos antes de la autorización:
-`clients-service:` Para obtener los datos fiscales del cliente.
-`products-service:` Para obtener los datos fiscales de los productos a facturar.
 
-Se toma la decisión de que la llamada sea a estos servicios sea sincrónica para priorizar la consistencia de los datos. Se prefiere el acoplamiento a facturar con datos desactualizados.
+Este servicio mantiene copias locales de datos de otros servicios para minimizar 
+el acoplamiento en tiempo de ejecución:
+
+### Réplicas locales:
+- **Client** (desde `clients-service`): Datos fiscales del cliente
+- **Product** (desde `products-service`): Datos fiscales de los productos
+- **Tenant** (desde `tenants-service`): Datos fiscales del emisor del comprobante.
+
+### Mecanismo de sincronización:
+Las réplicas se actualizan mediante eventos publicados por los servicios de origen 
+cuando ocurren cambios relevantes para facturación.
+
+### Dependencias en tiempo de ejecución:
+Ninguna. El servicio opera de forma autónoma con sus datos locales.
+
+### Estrategia de consistencia:
+En futuras iteraciones se consideran las siguientes estrategias para mitigar posibles desincronizaciones:
+
+- Añadir a cada réplica local el campo DateTimeOffset `last_synced_at` para detectar datos obsoletos
+- Pre-validación: Si los datos tienen > $HS_TOLERANCIA_POR_SERVICIO, se realiza 
+  una consulta síncrona al servicio de origen como fallback. Se prefiere dejar la tolerancia sea de cada servicio en particular ya que no es actualizará con la misma frecuencia los Tenants, que los Products por ejemplo.
+- Monitoreo: Alertas si no se reciben eventos por > 1 hora
+- Sincronización: Job diario que detecta y corrige discrepancias.
+
+**En caso de falla de sincronización:**
+Se podría parametrizar por Tenant si se bloquea la facturación o se confia en los datos de las copias locales.
 
 ## Autenticación
 El Invoicing service estará segurizado por un JWT. Existirá un identity-service será emisor de ese JWT, que deberá tener claims tales como el TenantId y UserId.
 
 ## Alternativas descartadas:
 
-**A)** Se había pensado en primera instancia no utilizar una tabla de numeración, sino que hacer un SELECT MAX(Número) + 1 simplemente en la tabla del comprobante a autorizar. Se descartó esta propuesta por no ser muy segura en entornos de alta concurrencia. 
+**A) SELECT MAX(Número) + 1 sin tabla de numeración** 
+
+Se había pensado en primera instancia no utilizar una tabla de numeración, sino que hacer un SELECT MAX(Número) + 1 simplemente en la tabla del comprobante a autorizar. Se descartó esta propuesta por no ser muy segura en entornos de alta concurrencia. 
 **Ejemplo:** 
 
 **1)** El usuario 1 y 2 intentan autorizar una factura para el mismo POS al mismo tiempo.
 
-**2)** El operador 1 obtiene el número 4 al hacer SELECT MAX(Número) + 1 FROM INVOICES.
+**2)** El usuario 1 obtiene el número 4 al hacer SELECT MAX(Número) + 1 FROM INVOICES.
 
-**3)** El operador 2 obtiene el número 4 al hacer SELECT MAX(Número) + 1 FROM INVOICES.
+**3)** El usuario 2 obtiene el número 4 al hacer SELECT MAX(Número) + 1 FROM INVOICES.
 
 **4)** La factura del usuario 1 se autoriza en ARCA.
 
 **5)** La factura del usuario 2 es rechazada en ARCA por numeración corrupta. Lo cual generará una mala UX.
 
-**B)** Arquitectura de colas. Que la API `POST /invoices` (o cualquier otro tipo de comprobante) no autorice, sino que solo guarde una "solicitud" en una cola de Service Bus. Un worker (Azure Function) procesaría la cola. Si bien este patrón ofrece el mejor rendimiento y elimina los bloqueos de base de datos, fue descartado por priorizar la simplicidad del proyecto. Esta arquitectura introduce una complejidad de orden superior para el cliente (la UI), que ahora tendría que manejar una respuesta asíncrona (ya no recibe la factura al instante), requiriendo un sistema de notificaciones (como SignalR) que está fuera del alcance de este proyecto. Se opta por una solución síncrona más simple pero atómicamente correcta.
+**B) Arquitectura asíncrona con colas de mensajes.** 
+
+ `POST /invoices` (o cualquier otro tipo de comprobante) no autoriza, sino que solo guarde una "solicitud" en una cola de RabbitMQ. Un worker separado procesaría las autorizaciones de forma asíncrona. Si bien este patrón ofrece el mejor rendimiento y elimina los bloqueos de base de datos, fue descartado por priorizar la simplicidad del proyecto. Esta arquitectura introduce una complejidad de orden superior para el cliente (la UI), que ahora tendría que manejar una respuesta asíncrona (ya no recibe la factura al instante), requiriendo un sistema de notificaciones que está fuera del alcance de este proyecto. Se opta por una solución síncrona más simple pero atómicamente correcta. De todas formas se mantiene esta alternativa en caso de que el volumen de facturación aumente considerablemente.
 
 ## Propuesta:
 
@@ -53,16 +77,16 @@ El flujo de autorización seguirá la siguiente secuencia:
 **1) Chequeo de idempotencia:** La solicitud de autorización debe primero pasar un chequeo de idempotencia. Se intentará insertar la `Idempotency-Key` (provista en la cabecera de la petición) en la tabla AuthorizationRequest con estado `Pending`.
 Si el insert falla por violación de PK significa que esa solicitud ya fue procesada y retornará la respuesta cacheada (`200 OK` si fue autorizada exitosamente, `409 Conflict` si está pendiente, `400 Bad Request` si la solicitud de autorización fue rechazada).  
 
-**2) Recolección de datos y cálculos:** Solamente si la `Idempotency-Key` es nueva, el servicio recolectará los datos necesarios para la autorización. Esto implica llamadas síncronas a los microservicios `clients-service` y `products-service` para obtener los datos fiscales del cliente y los productos respectivamente. Se acepta este acoplamiento para garantizar la consistencia de los datos, es decir, evitar facturar con precios obsoletos o categorías fiscales obsoletas. Con estos datos, el motor de impuestos de `invoicing-service` consultará la matriz de reglas (TaxRules) y calculará los impuestos aplicables al comprobante y sus totales.
+**2) Recolección de datos y cálculos:** Solamente si la `Idempotency-Key` es nueva, el servicio recolectará los datos necesarios para la autorización. Esto implica llamadas síncronas a las copias locales de Clients y Products para obtener los datos fiscales del cliente y los productos respectivamente. Con estos datos, el motor de impuestos de `invoicing-service` consultará la matriz de reglas (TaxRules) y calculará los impuestos aplicables al comprobante y sus totales.
 
-**3) Transacción:** Si los pasos 1 y 2 son exitosos, el servicio inciará la transacción en la base de datos para la autorización.
+**3) Transacción:** Si los pasos 1 y 2 son exitosos, el servicio iniciará la transacción en la base de datos para la autorización. El nivel de aislamiento de la transacción debería ser **Serializable**, el más restrictivo.
 Se bloqueará la fila en `PointOfSaleCounters` correspondiente al tipo de comprobante del PointOfSale que estamos intentando autorizar. El bloqueo será usando `WITH (UPDLOCK, ROWLOCK)`, de esta forma podremos tomar el numero que corresponda autorizar de forma segura, es decir, no pueden haber dos procesos de autorización que utilicen el mismo numero para un mismo tipo de comprobante de un mismo PointOfSale.
 Se llamará a ARCA con los totales calculados y un numero válido para la autorización. Esto es pésimo en rendimiento, ya que si la llamada a ARCA tarda 10 segundos, tendré la tabla `PointOfSaleCounters` bloqueada para ese tipo de comprobante y PointOfSale por al menos 10 segundos. Nuevamente, se toma la decisión de preservar la integridad de los datos aceptando un rendimiento menor.
-Si el intento de autorización es rechazado por ARCA, la transacción se revertirá. Esto liberá el registro bloqueado de `PointOfSaleCounters` sin corromper la numeración. No se guardará ningún dato en la tabla del tipo de comprobante y en la tabla Requests del comprobante se marcará el intento de autorización como `Failed`. Se devolverá un `400 Bad Request` al usuario.
+Si el intento de autorización es rechazado por ARCA, la transacción se revertirá. Esto liberará el registro bloqueado de `PointOfSaleCounters` sin corromper la numeración. No se guardará ningún dato en la tabla del tipo de comprobante y en la tabla Requests del comprobante se marcará el intento de autorización como `Failed`. Se devolverá un `400 Bad Request` al usuario.
 Si el comprobante es autorizado por ARCA, se hará commit de la transacción, guardando el comprobante en su tabla, con su correspondiente desglose de items en su tabla de items y guardando  el desglose de impuestos en la tabla de impuestos relacionados a los impuestos a nivel item. Se actualizará el campo `LastNumber` del registro que corresponda de `PointOfSaleCounters`. 
-Si ARCA está caído se ejecutará inmediatamente un ROLLBACK de la transacción y se devolverá un `503 Service Unavaible`.
+Si ARCA está caído se ejecutará inmediatamente un ROLLBACK de la transacción y se devolverá un `503 Service Unavailable`.
 
-**4) Publicación de eventos:** Tras el commit exitoso, el servicio actualizará la tabla de requests con un status `Success` y publicará un evento en Azure Service Bus, anunciando la autorización del comprobante. Esto desacopla los procesos de fondo como la generación del PDF del comprobante autorizado o la actualización de cuentas corrientes.
+**4) Publicación de eventos:** Tras el commit exitoso, el servicio actualizará la tabla de requests con un status `Success` y publicará un evento en RabbitMQ, anunciando la autorización del comprobante. Esto desacopla los procesos de fondo como la generación del PDF del comprobante autorizado o la actualización de cuentas corrientes.
 
 **5) Respuesta:** El servicio devolverá un `201 Created` al cliente con el JSON del comprobante autorizado. 
 
@@ -197,5 +221,3 @@ Autoriza una nueva factura de venta de forma síncrona. Este endpoint orquesta l
 | `quantity` | `decimal` | **Sí** | Cantidad a facturar |
 | `unitPrice` | `decimal` | **No** | Precio unitario del producto. Si no se envia, se utiliza el precio por defecto del producto |
 | `description` | `string` | **No** | Descripción del item facturado. Si no se envia, se utiliza el nombre del producto |
-
-### Validaciones
