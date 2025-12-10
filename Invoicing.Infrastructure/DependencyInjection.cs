@@ -1,5 +1,3 @@
-using Invoicing.Application.Interfaces;
-using Invoicing.Infrastructure.Persistence;
 using Invoicing.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +13,6 @@ public static class DependencyInjection
 
     services.AddDbContext<InvoicingDbContext>(options =>
         options.UseSqlServer(connectionString));
-
-    services.AddScoped<IUnitOfWork, UnitOfWork>();
 
     return services;
   }
