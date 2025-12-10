@@ -1,5 +1,6 @@
 using Invoicing.Infrastructure;
 using Invoicing.Infrastructure.Persistence.Contexts;
+using Invoicing.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,8 @@ builder.Services.AddDbContext<InvoicingDbContext>(options =>
     sqlOptions.MigrationsAssembly("Invoicing.Infrastructure");
   });
 });
+
+builder.Services.AddScoped<IInvoicingDbContext>(provider => provider.GetRequiredService<InvoicingDbContext>());
 
 var app = builder.Build();
 
