@@ -38,5 +38,15 @@ public class InvoiceItemConfiguration : IEntityTypeConfiguration<InvoiceItem>
       .WithOne()
       .HasForeignKey(x => x.InvoiceItemId)
       .OnDelete(DeleteBehavior.Cascade);
+    
+    builder.HasOne<Product>()
+      .WithMany()
+      .HasForeignKey(x => x.ProductId)
+      .OnDelete(DeleteBehavior.Restrict);
+    
+    builder.HasOne<Tenant>()
+      .WithMany()
+      .HasForeignKey(x => x.TenantId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

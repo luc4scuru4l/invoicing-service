@@ -32,6 +32,16 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         .WithOne()
         .HasForeignKey(item => item.InvoiceId)
         .OnDelete(DeleteBehavior.Restrict);
+    
+    builder.HasOne<Client>()
+        .WithMany()
+        .HasForeignKey(x => x.ClientId)
+        .OnDelete(DeleteBehavior.Restrict);
+    
+    builder.HasOne<Tenant>()
+        .WithMany()
+        .HasForeignKey(x => x.TenantId)
+        .OnDelete(DeleteBehavior.Restrict);
 
     builder.Metadata.FindNavigation(nameof(Invoice.Items))!
         .SetPropertyAccessMode(PropertyAccessMode.Field);

@@ -20,6 +20,8 @@ public class InvoicingDbContext : DbContext, IInvoicingDbContext
 
   public DbSet<AuthorizationRequest> AuthorizationRequests { get; set; }
 
+  public DbSet<Product> Products { get; set; }
+  public DbSet<Client> Clients { get; set; }
   public DbSet<Tax> Taxes { get; set; }
   public DbSet<TaxRule> TaxRules { get; set; }
 
